@@ -1,0 +1,14 @@
+@startuml
+
+object author
+author : name : String
+
+object article
+article : name : String
+article : published_date : Date
+article : topics : List<String>
+
+author "1..*" --> "0..*" article : Author of
+article "1..*" ---> "1..*" article : References
+
+@enduml
