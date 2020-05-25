@@ -1,0 +1,3 @@
+DatabaseUser=neo4j
+DatabasePassword=asd123
+DatabaseURL=bolt://localhost:7687

@@ -1,3 +1,9 @@
-mau\db\Neo4jProject\Neo4jDatabase$1.class
+mau\db\Neo4jProject\Callback.class
 mau\db\Neo4jProject\App.class
+module-info.class
+mau\db\Neo4jProject\Author.class
+mau\db\Neo4jProject\Article.class
+mau\db\Neo4jProject\MainViewController.class
 mau\db\Neo4jProject\Neo4jDatabase.class
+mau\db\Neo4jProject\EditArticleViewController.class
+mau\db\Neo4jProject\Controller.class
