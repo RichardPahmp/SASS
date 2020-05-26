@@ -6,23 +6,21 @@ import java.util.ArrayList;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class MainViewController extends Controller{
 
 	@FXML
-	ListView<String> articleListView;
+	ListView<Article> articleListView;
 	
 	@FXML
-	ListView<String> referenceListView;
+	ListView<Article> referenceListView;
 	
 	@FXML
 	Button directionButton;
@@ -40,28 +38,41 @@ public class MainViewController extends Controller{
 	TextArea infoTextArea;
 	
 	@FXML
-	Spinner stepsSpinner;
+	Spinner<Integer> stepsSpinner;
+
+	@FXML
+	TextField filterTextField;
 	
 	Scene editArticleScene;
 	EditArticleViewController editArticleViewController;
 	
 	private boolean outgoingReference = true;
 	
-	private ObservableList<String> articleList = FXCollections.observableArrayList();
-	private ObservableList<String> referenceList = FXCollections.observableArrayList();
+	private ObservableList<Article> articleList = FXCollections.observableArrayList();
+	private ObservableList<Article> referenceList = FXCollections.observableArrayList();
+
+	private FilteredList<Article> filteredArticleList = new FilteredList<>(articleList, this::articleFilter);
 	
 	@Override
 	public void initialize(App app, Neo4jDatabase database) {
 		super.initialize(app, database);
 		
-		articleListView.setItems(articleList);
+		articleListView.setItems(filteredArticleList);
 		articleListView.getSelectionModel().clearSelection();
 		articleListView.getSelectionModel().selectedItemProperty().addListener(this::articleSelectionChanged);
 		
 		referenceListView.setItems(referenceList);
 		referenceListView.getSelectionModel().selectedItemProperty().addListener(this::referenceSelectionChanged);
+
+		stepsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 1));
+		stepsSpinner.valueProperty().addListener(this::spinnerChanged);
 		
 		updateArticleList();
+	}
+
+	private boolean articleFilter(Article name){
+		String filter = filterTextField.getText();
+		return true;
 	}
 	
 	@FXML
@@ -87,7 +98,7 @@ public class MainViewController extends Controller{
 	@FXML
 	private void onEditArticle() {
 		if(articleListView.getSelectionModel().getSelectedIndex() >= 0) {
-			String article = articleListView.getSelectionModel().getSelectedItem();
+			Article article = articleListView.getSelectionModel().getSelectedItem();
 			EditArticleViewController controller = openEditArticleView();
 			controller.setArticle(article);
 		}
@@ -100,7 +111,10 @@ public class MainViewController extends Controller{
 			editArticleScene = new Scene(loader.load(), 640, 480);
 			editArticleViewController = loader.getController();
 			editArticleViewController.initialize(app, database);
-			editArticleViewController.setCallback(() -> updateArticleList());
+			editArticleViewController.setCallback(() -> {
+				updateArticleList();
+				//TODO : update info view after article edit
+			});
 			
 			Stage stage = new Stage();
 			stage.setTitle("New Article");
@@ -120,46 +134,55 @@ public class MainViewController extends Controller{
 	@FXML
 	private void onRemoveArticle() {
 		if(articleListView.getSelectionModel().getSelectedIndex() >= 0) {
-			String article = articleListView.getSelectionModel().getSelectedItem();
-			database.deleteArticle(article);
+			Article article = articleListView.getSelectionModel().getSelectedItem();
+			database.deleteArticle(article.name);
 			updateArticleList();
 		}
 	}
 	
 	private void updateArticleList() {
-		ArrayList<String> articles = database.getAllArticleNames();
+		ArrayList<Article> articles = database.getAllArticles();
 		articleList.setAll(articles);
 	}
 	
-	private void updateReferenceList(String articleName) {
-		ArrayList<String> references;
+	private void updateReferenceList(Article article, int steps) {
+		ArrayList<Article> references;
 		if(outgoingReference) {
-			references = database.getReferences(articleName);
+			references = database.getReferences(article.name, steps);
 		} else {
-			references = database.getReferencers(articleName);
+			references = database.getReferencers(article.name);
 		}
 		referenceList.setAll(references);
 	}
-	
-	private void updateInfoView(Article article) {
-		infoTextArea.setText("Name: " + article.name);
+
+	private void updateReferenceList(Article article){
+		updateReferenceList(article, 1);
 	}
 	
-	private void articleSelectionChanged(ObservableValue<? extends String> observable, String oldArticle, String newArticle) {
+	private void updateInfoView(Article article) {
+		infoTextArea.setText("Name: " + article.name + "\nYear: " + article.year);
+	}
+
+	private void spinnerChanged(ObservableValue<? extends Integer> observable, int oldValue, int newValue){
+		if(articleListView.getSelectionModel().getSelectedIndex() >= 0) {
+			Article article = articleListView.getSelectionModel().getSelectedItem();
+			updateReferenceList(article, newValue);
+		}
+	}
+	
+	private void articleSelectionChanged(ObservableValue<? extends Article> observable, Article oldArticle, Article newArticle) {
 		if(newArticle != null) {
 			referenceListView.getSelectionModel().clearSelection();
-			Article article = database.getArticle(newArticle);
-			updateInfoView(article);
+			updateInfoView(newArticle);
 			
 			updateReferenceList(newArticle);
 		}
 	}
 	
-	private void referenceSelectionChanged(ObservableValue<? extends String> observable, String oldArticle, String newArticle) {
+	private void referenceSelectionChanged(ObservableValue<? extends Article> observable, Article oldArticle, Article newArticle) {
 		if(newArticle != null) {
 			articleListView.getSelectionModel().clearSelection();
-			Article article = database.getArticle(newArticle);
-			updateInfoView(article);
+			updateInfoView(newArticle);
 		}
 	}
 }

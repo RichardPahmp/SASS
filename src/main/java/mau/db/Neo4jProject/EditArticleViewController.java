@@ -24,10 +24,10 @@ public class EditArticleViewController extends Controller{
 	TextArea topicsTextArea;
 	
 	@FXML
-	ListView<String> articleListView;
+	ListView<Article> articleListView;
 	
 	@FXML
-	ListView<String> referenceListView;
+	ListView<Article> referenceListView;
 	
 	@FXML
 	ListView<String> authorListView;
@@ -35,13 +35,13 @@ public class EditArticleViewController extends Controller{
 	@FXML
 	ListView<String> authoredListView;
 	
-	private ObservableList<String> articleList = FXCollections.observableArrayList();
-	private ObservableList<String> referenceList = FXCollections.observableArrayList();
+	private ObservableList<Article> articleList = FXCollections.observableArrayList();
+	private ObservableList<Article> referenceList = FXCollections.observableArrayList();
 	private ObservableList<String> authorList = FXCollections.observableArrayList();
 	private ObservableList<String> authoredList = FXCollections.observableArrayList();
 	
-	private ArrayList<String> referencesToRemove = new ArrayList<String>();
-	private ArrayList<String> authoredToRemove = new ArrayList<String>();
+	private ArrayList<Article> referencesToRemove = new ArrayList<>();
+	private ArrayList<String> authoredToRemove = new ArrayList<>();
 
 	private Callback callback;
 	
@@ -91,9 +91,9 @@ public class EditArticleViewController extends Controller{
 			Article article = new Article(name, year, topics);
 			database.mergeArticle(article);
 			
-			database.mergeReferences(name, new ArrayList<String>(referenceList));
+			database.mergeReferences(name, Article.toNameList(new ArrayList<Article>(referenceList)));
 			
-			database.deleteReferences(name, referencesToRemove);
+			database.deleteReferences(name, Article.toNameList(referencesToRemove));
 			
 			
 			database.mergeAuthored(name, new ArrayList<String>(authoredList));
@@ -110,7 +110,7 @@ public class EditArticleViewController extends Controller{
 	@FXML
 	private void onAddReference() {
 		if(articleListView.getSelectionModel().getSelectedIndex() >= 0) {
-			String article = articleListView.getSelectionModel().getSelectedItem();
+			Article article = articleListView.getSelectionModel().getSelectedItem();
 			articleList.remove(article);
 			referenceList.add(article);
 			
@@ -123,7 +123,7 @@ public class EditArticleViewController extends Controller{
 	@FXML
 	private void onRemoveReference() {
 		if(referenceListView.getSelectionModel().getSelectedIndex() >= 0) {
-			String article = referenceListView.getSelectionModel().getSelectedItem();
+			Article article = referenceListView.getSelectionModel().getSelectedItem();
 			referenceList.remove(article);
 			articleList.add(article);
 			referencesToRemove.add(article);
@@ -182,27 +182,26 @@ public class EditArticleViewController extends Controller{
 	}
 	
 	private void updateArticleList() {
-		ArrayList<String> articles = database.getAllArticleNames();
-		for(String a : referenceList) {
+		ArrayList<Article> articles = database.getAllArticles();
+		for(Article a : referenceList) {
 			articles.remove(a);
 		}
 		articleList.setAll(articles);
 	}
 	
-	public void setArticle(String name) {
-		Article article = database.getArticle(name);
+	public void setArticle(Article article) {
 		nameTextField.setText(article.name);
 		yearTextField.setText(article.year + "");
 		
 		String topics = String.join(",", article.topics);
 		topicsTextArea.setText(topics);
 		
-		ArrayList<String> references = database.getReferences(article.name);
+		ArrayList<Article> references = database.getReferences(article.name);
 		ArrayList<String> authors = database.getAuthors(article.name);
 		
 		articleList.remove(article.name);
 		
-		for(String ref : references) {
+		for(Article ref : references) {
 			if(articleList.contains(ref)) {
 				articleList.remove(ref);
 				referenceList.add(ref);

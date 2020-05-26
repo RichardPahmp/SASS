@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import static java.lang.Math.toIntExact;
-import java.util.Collections;
 
 import org.neo4j.driver.Record;
 
@@ -29,5 +28,13 @@ public class Article {
 	
 	public String toString() {
 		return name;
+	}
+
+	public static ArrayList<String> toNameList(ArrayList<Article> articles){
+		ArrayList<String> names = new ArrayList<>();
+		for(Article article : articles){
+			names.add(article.name);
+		}
+		return names;
 	}
 }
