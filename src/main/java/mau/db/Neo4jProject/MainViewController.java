@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -33,7 +34,22 @@ public class MainViewController extends Controller{
 	
 	@FXML
 	Button removeArticleButton;
-	
+
+	@FXML
+	TextField filterNameTextField;
+
+	@FXML
+	TextField filterFromYearTextField;
+
+	@FXML
+	TextField filterToYearTextField;
+
+	@FXML
+	TextField filterTopicsTextField;
+
+	@FXML
+	TextField filterAuthorsTextField;
+
 	@FXML
 	TextArea infoTextArea;
 	
@@ -41,7 +57,7 @@ public class MainViewController extends Controller{
 	Spinner<Integer> stepsSpinner;
 
 	@FXML
-	TextField filterTextField;
+	Button refreshButton;
 	
 	Scene editArticleScene;
 	EditArticleViewController editArticleViewController;
@@ -51,7 +67,7 @@ public class MainViewController extends Controller{
 	private ObservableList<Article> articleList = FXCollections.observableArrayList();
 	private ObservableList<Article> referenceList = FXCollections.observableArrayList();
 
-	private FilteredList<Article> filteredArticleList = new FilteredList<>(articleList, this::articleFilter);
+	private FilteredList<Article> filteredArticleList = new FilteredList<>(articleList);
 	
 	@Override
 	public void initialize(App app, Neo4jDatabase database) {
@@ -63,6 +79,11 @@ public class MainViewController extends Controller{
 		
 		referenceListView.setItems(referenceList);
 		referenceListView.getSelectionModel().selectedItemProperty().addListener(this::referenceSelectionChanged);
+		referenceListView.setOnMouseClicked(e -> {
+			if(e.getButton().equals(MouseButton.PRIMARY) && e.getClickCount() == 2){
+				onReferenceDoubleClick();
+			}
+		});
 
 		stepsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 1));
 		stepsSpinner.valueProperty().addListener(this::spinnerChanged);
@@ -70,10 +91,44 @@ public class MainViewController extends Controller{
 		updateArticleList();
 	}
 
-	private boolean articleFilter(Article name){
-		String filter = filterTextField.getText();
+	private boolean articleFilter(Article article){
+
+		String nameFilter = filterNameTextField.getText();
+		String topicsFilter = filterTopicsTextField.getText();
+		String authorsFilter = filterAuthorsTextField.getText();
+		int fromYearFilter = -1;
+		int toYearFilter = -1;
+		try {
+			fromYearFilter = Integer.parseInt(filterFromYearTextField.getText());
+			toYearFilter = Integer.parseInt(filterToYearTextField.getText());
+		} catch (NumberFormatException e){
+
+		}
+
+		if(!nameFilter.isBlank() && !article.name.contains(nameFilter)){
+			return false;
+		}
+
+		if(!topicsFilter.isBlank() && !article.containsTopics(topicsFilter)){
+			return false;
+		}
+
+		if(!authorsFilter.isBlank() && !article.containsAuthors(authorsFilter)){
+			return false;
+		}
+
+		if(fromYearFilter > 0 && article.year < fromYearFilter){
+			return false;
+		}
+
+		if(toYearFilter > 0 && article.year > toYearFilter){
+			return false;
+		}
+
 		return true;
 	}
+
+
 	
 	@FXML
 	private void onChangeDirection() {
@@ -160,7 +215,12 @@ public class MainViewController extends Controller{
 	}
 	
 	private void updateInfoView(Article article) {
-		infoTextArea.setText("Name: " + article.name + "\nYear: " + article.year);
+		String output = "";
+		output += "Name: " + article.name;
+		output += "\nYear: " + article.year;
+		output += "\nTopics: " + String.join(", ", article.topics);
+		output += "\nAuthors: " + String.join(", ", article.authors);
+		infoTextArea.setText(output);
 	}
 
 	private void spinnerChanged(ObservableValue<? extends Integer> observable, int oldValue, int newValue){
@@ -172,7 +232,7 @@ public class MainViewController extends Controller{
 	
 	private void articleSelectionChanged(ObservableValue<? extends Article> observable, Article oldArticle, Article newArticle) {
 		if(newArticle != null) {
-			referenceListView.getSelectionModel().clearSelection();
+			//referenceListView.getSelectionModel().clearSelection();
 			updateInfoView(newArticle);
 			
 			updateReferenceList(newArticle);
@@ -181,8 +241,18 @@ public class MainViewController extends Controller{
 	
 	private void referenceSelectionChanged(ObservableValue<? extends Article> observable, Article oldArticle, Article newArticle) {
 		if(newArticle != null) {
-			articleListView.getSelectionModel().clearSelection();
+			//articleListView.getSelectionModel().clearSelection();
 			updateInfoView(newArticle);
 		}
+	}
+
+	private void onReferenceDoubleClick(){
+		Article article = referenceListView.getSelectionModel().getSelectedItem();
+		articleListView.getSelectionModel().select(article);
+	}
+
+	@FXML
+	private void onRefreshFilter(){
+		filteredArticleList.setPredicate(this::articleFilter);
 	}
 }

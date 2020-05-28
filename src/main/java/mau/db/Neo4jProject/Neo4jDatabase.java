@@ -5,10 +5,13 @@ import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.exceptions.NoSuchRecordException;
 
 import static org.neo4j.driver.Values.parameters;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class Neo4jDatabase implements AutoCloseable {
 	private final Driver driver;
@@ -140,7 +143,7 @@ public class Neo4jDatabase implements AutoCloseable {
 	public ArrayList<Article> getAllArticles(){
 		ArrayList<Article> articles = new ArrayList<>();
 		try(Session session = driver.session()){
-			Result result = session.run("MATCH (a:Article) RETURN properties(a) AS props");
+			Result result = session.run("MATCH (a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN properties(a) AS props, collect(b.name) AS authors");
 			articles = getArticlesFromResult(result);
 		}
 		return articles;
@@ -170,7 +173,7 @@ public class Neo4jDatabase implements AutoCloseable {
 					query += "-[:References]->(:Article)";
 				} else {
 					//Last step in the loop
-					query += "-[:References]->(a:Article) RETURN properties(a) AS props";
+					query += "-[:References]->(a:Article) RETURN DISTINCT properties(a) AS props";
 				}
 			}
 			Result result = session.run(query, p);
@@ -179,15 +182,12 @@ public class Neo4jDatabase implements AutoCloseable {
 		return references;
 	}
 
-	public ArrayList<String> getSharedReferencers(String article){
-		ArrayList<String> articles = new ArrayList<String>();
+	public ArrayList<Article> getSharedReferencers(String article){
+		ArrayList<Article> articles;
 		try(Session session = driver.session()){
 			var p = parameters("name", article);
-			Result result = session.run("MATCH (a:Article {name: $name})-[:References]->()<-[:References]-(b:Article) return b.name AS name", p);
-			while(result.hasNext()) {
-				Record record = result.next();
-				articles.add(record.get("name").asString());
-			}
+			Result result = session.run("MATCH (a:Article {name: $name})-[:References]->()<-[:References]-(b:Article) return properties(b) AS props", p);
+			articles = getArticlesFromResult(result);
 		}
 		return articles;
 	}
@@ -196,7 +196,7 @@ public class Neo4jDatabase implements AutoCloseable {
 		ArrayList<Article> articles;
 		try(Session session = driver.session()){
 			var p = parameters("article", article);
-			Result result = session.run("MATCH (a:Article) WHERE a.name = $article MATCH (a)<-[:References]-(b) return b.name AS name", p);
+			Result result = session.run("MATCH (a:Article) WHERE a.name = $article MATCH (a)<-[:References]-(b) return properties(b) AS props", p);
 			articles = getArticlesFromResult(result);
 		}
 		return articles;
@@ -248,7 +248,16 @@ public class Neo4jDatabase implements AutoCloseable {
 		ArrayList<Article> articles = new ArrayList<>();
 		while(result.hasNext()) {
 			Record record = result.next();
-			articles.add(new Article(record.get("props").asMap()));
+			Article article = new Article(record.get("props").asMap());
+			try {
+				List<String> authors = (List<String>) record.get("authors").asObject();
+				if(authors != null){
+					article.setAuthors(authors);
+				}
+			} catch (NoSuchRecordException e){
+
+			}
+			articles.add(article);
 		}
 		return articles;
 	}

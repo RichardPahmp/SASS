@@ -24,6 +24,65 @@
                         <Insets bottom="5.0" />
                      </VBox.margin>
                   </ListView>
+                  <VBox prefWidth="32.0">
+                     <children>
+                        <Label text="Name:" />
+                        <TextField fx:id="filterNameTextField">
+                           <VBox.margin>
+                              <Insets bottom="5.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <HBox>
+                           <children>
+                              <VBox>
+                                 <children>
+                                    <Label text="From year:" />
+                                    <TextField fx:id="filterFromYearTextField">
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                    </TextField>
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets right="5.0" />
+                                 </HBox.margin>
+                              </VBox>
+                              <VBox>
+                                 <children>
+                                    <Label text="To year:" />
+                                    <TextField fx:id="filterToYearTextField">
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                    </TextField>
+                                 </children>
+                              </VBox>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="5.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <Label text="Topics (comma separated):" />
+                        <TextField fx:id="filterTopicsTextField">
+                           <VBox.margin>
+                              <Insets bottom="5.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label text="Authors (comma separated):" />
+                        <TextField fx:id="filterAuthorsTextField">
+                           <VBox.margin>
+                              <Insets bottom="5.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#onRefreshFilter" text="Refresh" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="5.0" />
+                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </VBox>
                   <FlowPane hgap="5.0" prefHeight="0.0" prefWidth="0.0" vgap="5.0">
                      <children>
                         <Button fx:id="newArticleButton" mnemonicParsing="false" onAction="#onNewArticle" text="New Article" />
@@ -36,20 +95,24 @@
                   </FlowPane>
                </children>
             </VBox>
-            <VBox alignment="CENTER" prefWidth="0.0" HBox.hgrow="ALWAYS">
+            <VBox prefWidth="0.0" HBox.hgrow="ALWAYS">
                <children>
-                  <Label text="Reference Direction:" />
-                  <Button fx:id="directionButton" mnemonicParsing="false" onAction="#onChangeDirection" text="-&gt;">
-                     <VBox.margin>
-                        <Insets bottom="10.0" />
-                     </VBox.margin>
-                  </Button>
-                  <Label text="Steps:" />
-                  <Spinner fx:id="stepsSpinner" editable="true" />
-                  <TextField fx:id="filterTextField" />
+                  <VBox />
+                  <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
+                     <children>
+                        <Label text="Reference Direction:" />
+                        <Button fx:id="directionButton" mnemonicParsing="false" onAction="#onChangeDirection" text="-&gt;">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </Button>
+                        <Label text="Steps:" />
+                        <Spinner fx:id="stepsSpinner" editable="true" />
+                     </children>
+                  </VBox>
                </children>
                <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                  <Insets left="5.0" right="5.0" />
                </padding>
             </VBox>
             <VBox HBox.hgrow="ALWAYS">

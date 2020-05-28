@@ -85,7 +85,7 @@ public class EditArticleViewController extends Controller{
 			if(topicsString.isBlank()){
 				topics = new String[0];
 			} else {
-				topics = topicsString.split(",");
+				topics = topicsString.split(", *");
 			}
 			
 			Article article = new Article(name, year, topics);
