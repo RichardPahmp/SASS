@@ -205,7 +205,7 @@ public class MainViewController extends Controller{
 		if(outgoingReference) {
 			references = database.getReferences(article.name, steps);
 		} else {
-			references = database.getReferencers(article.name);
+			references = database.getReferencers(article.name, steps);
 		}
 		referenceList.setAll(references);
 	}

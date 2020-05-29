@@ -196,23 +196,14 @@ public class EditArticleViewController extends Controller{
 		String topics = String.join(",", article.topics);
 		topicsTextArea.setText(topics);
 		
-		ArrayList<Article> references = database.getReferences(article.name);
+		ArrayList<Article> references = database.getReferences(article.name, 1);
 		ArrayList<String> authors = database.getAuthors(article.name);
 		
-		articleList.remove(article.name);
-		
-		for(Article ref : references) {
-			if(articleList.contains(ref)) {
-				articleList.remove(ref);
-				referenceList.add(ref);
-			}
-		}
-		
-		for(String author : authors) {
-			if(authorList.contains(author)) {
-				authorList.remove(author);
-				authoredList.add(author);
-			}
-		}
+		articleList.remove(article);
+		articleList.removeAll(references);
+		referenceList.setAll(references);
+
+		authoredList.setAll(authors);
+		authorList.removeAll(authors);
 	}
 }

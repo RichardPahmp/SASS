@@ -173,7 +173,7 @@ public class Neo4jDatabase implements AutoCloseable {
 					query += "-[:References]->(:Article)";
 				} else {
 					//Last step in the loop
-					query += "-[:References]->(a:Article) RETURN DISTINCT properties(a) AS props";
+					query += "-[:References]->(a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN DISTINCT properties(a) AS props, collect(b.name) AS authors";
 				}
 			}
 			Result result = session.run(query, p);
@@ -182,11 +182,30 @@ public class Neo4jDatabase implements AutoCloseable {
 		return references;
 	}
 
-	public ArrayList<Article> getSharedReferencers(String article){
+	public ArrayList<Article> getReferencers(String article, int steps){
 		ArrayList<Article> articles;
 		try(Session session = driver.session()){
+			var p = parameters("article", article);
+			String query = "MATCH (:Article {name: $article})";
+			for (int i = 0; i < steps; i++) {
+				if(i < steps - 1){
+					query += "<-[:References]-(:Article)";
+				} else {
+					//Last step in the loop
+					query += "<-[:References]-(a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN DISTINCT properties(a) AS props, collect(b.name) AS authors";
+				}
+			}
+			Result result = session.run(query, p);
+			articles = getArticlesFromResult(result);
+		}
+		return articles;
+	}
+
+	public ArrayList<Article> getSharedReferencers(String article) {
+		ArrayList<Article> articles;
+		try (Session session = driver.session()) {
 			var p = parameters("name", article);
-			Result result = session.run("MATCH (a:Article {name: $name})-[:References]->()<-[:References]-(b:Article) return properties(b) AS props", p);
+			Result result = session.run("MATCH (a:Article {name: $name})-[:References]->()<-[:References]-(b:Article) OPTIONAL MATCH (b)<-[:Wrote]-(c:Author) return properties(b) AS props, collect(c.name) AS authors", p);
 			articles = getArticlesFromResult(result);
 		}
 		return articles;

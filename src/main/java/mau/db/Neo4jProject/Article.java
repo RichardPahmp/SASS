@@ -73,4 +73,8 @@ public class Article implements Comparable<Article>{
 			return 1;
 		}
 	}
+
+	public boolean equals(Article other){
+		return this.name == other.name;
+	}
 }
