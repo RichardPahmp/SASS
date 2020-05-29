@@ -97,16 +97,7 @@ public class Neo4jDatabase implements AutoCloseable {
 		ArrayList<Article> references;
 		try(Session session = driver.session()){
 			var p = parameters("article", article);
-			String query = "MATCH (:Article {name: $article})";
-			for (int i = 0; i < steps; i++) {
-				if(i < steps - 1){
-					query += "-[:References]->(:Article)";
-				} else {
-					//Last step in the loop
-					query += "-[:References]->(a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN DISTINCT properties(a) AS props, collect(b.name) AS authors";
-				}
-			}
-			Result result = session.run(query, p);
+			Result result = session.run("MATCH (:Article {name: $article})-[:References*" + steps + "]->(a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN DISTINCT properties(a) AS props, collect(b.name) AS authors", p);
 			references = getArticlesFromResult(result);
 		}
 		return references;
@@ -116,16 +107,7 @@ public class Neo4jDatabase implements AutoCloseable {
 		ArrayList<Article> articles;
 		try(Session session = driver.session()){
 			var p = parameters("article", article);
-			String query = "MATCH (:Article {name: $article})";
-			for (int i = 0; i < steps; i++) {
-				if(i < steps - 1){
-					query += "<-[:References]-(:Article)";
-				} else {
-					//Last step in the loop
-					query += "<-[:References]-(a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN DISTINCT properties(a) AS props, collect(b.name) AS authors";
-				}
-			}
-			Result result = session.run(query, p);
+			Result result = session.run("MATCH (:Article {name: $article})<-[:References*" + steps + "]-(a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN DISTINCT properties(a) AS props, collect(b.name) AS authors", p);
 			articles = getArticlesFromResult(result);
 		}
 		return articles;
