@@ -157,7 +157,8 @@ public class EditArticleViewController extends Controller{
 	private void onCreateAuthor() {
 		TextInputDialog dialog = new TextInputDialog();
 		dialog.setTitle("New Author");
-		dialog.setContentText("Enter new author name");
+		dialog.setHeaderText("Create a new author.");
+		dialog.setContentText("Enter new author name:");
 		
 		Optional<String> result = dialog.showAndWait();
 		result.ifPresent(name -> database.mergeAuthor(name));
