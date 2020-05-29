@@ -117,7 +117,7 @@
                            </VBox.margin>
                         </RadioButton>
                         <Label text="Steps:" />
-                        <Spinner fx:id="stepsSpinner" editable="true" />
+                        <Spinner fx:id="stepsSpinner" />
                      </children>
                   </VBox>
                </children>
