@@ -24,16 +24,7 @@ public class MainViewController extends Controller{
 	ListView<Article> referenceListView;
 	
 	@FXML
-	Button directionButton;
-	
-	@FXML
 	Button newArticleButton;
-	
-	@FXML
-	Button editArticleButton;
-	
-	@FXML
-	Button removeArticleButton;
 
 	@FXML
 	TextField filterNameTextField;
@@ -52,6 +43,15 @@ public class MainViewController extends Controller{
 
 	@FXML
 	TextArea infoTextArea;
+
+	@FXML
+	RadioButton neighbourRadioButton;
+
+	@FXML
+	RadioButton outgoingRadioButton;
+
+	@FXML
+	RadioButton incomingRadioButton;
 	
 	@FXML
 	Spinner<Integer> stepsSpinner;
@@ -61,6 +61,8 @@ public class MainViewController extends Controller{
 	
 	Scene editArticleScene;
 	EditArticleViewController editArticleViewController;
+
+	ToggleGroup toggleGroup = new ToggleGroup();
 	
 	private boolean outgoingReference = true;
 	
@@ -85,10 +87,16 @@ public class MainViewController extends Controller{
 			}
 		});
 
+		neighbourRadioButton.setToggleGroup(toggleGroup);
+		outgoingRadioButton.setToggleGroup(toggleGroup);
+		incomingRadioButton.setToggleGroup(toggleGroup);
+		toggleGroup.selectedToggleProperty().addListener(this::onToggleChange);
+
 		stepsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 1));
 		stepsSpinner.valueProperty().addListener(this::spinnerChanged);
 		
 		updateArticleList();
+		articleListView.getSelectionModel().select(0);
 	}
 
 	private boolean articleFilter(Article article){
@@ -128,20 +136,16 @@ public class MainViewController extends Controller{
 		return true;
 	}
 
-
-	
-	@FXML
-	private void onChangeDirection() {
-		outgoingReference = !outgoingReference;
-		
-		if(outgoingReference) {
-			directionButton.setText("-->");
+	private void onToggleChange(ObservableValue<? extends Toggle> ov, Toggle oldValue, Toggle newValue){
+		if(neighbourRadioButton.isSelected()){
+			stepsSpinner.setDisable(true);
 		} else {
-			directionButton.setText("<--");
+			stepsSpinner.setDisable(false);
 		}
-		
-		if(articleListView.getSelectionModel().getSelectedIndex() >= 0) {
-			updateReferenceList(articleListView.getSelectionModel().getSelectedItem());
+
+		if(articleListView.getSelectionModel().getSelectedIndex() >= 0){
+			Article article = articleListView.getSelectionModel().getSelectedItem();
+			updateReferenceList(article);
 		}
 	}
 	
@@ -202,10 +206,12 @@ public class MainViewController extends Controller{
 	
 	private void updateReferenceList(Article article, int steps) {
 		ArrayList<Article> references;
-		if(outgoingReference) {
+		if(outgoingRadioButton.isSelected()) {
 			references = database.getReferences(article.name, steps);
-		} else {
+		} else if (incomingRadioButton.isSelected()){
 			references = database.getReferencers(article.name, steps);
+		} else {
+			references = database.getSharedReferencers(article.name);
 		}
 		referenceList.setAll(references);
 	}

@@ -24,44 +24,12 @@ public class Neo4jDatabase implements AutoCloseable {
 	public void close() throws Exception {
 		driver.close();
 	}
-	
-	public void addArticle(String name, int year) {
-		try (Session session = driver.session()){
-			session.writeTransaction(tx -> tx.run("CREATE (a:Article {name: $name, year: $year})", parameters("name", name, "year", year)));
-		}
-	}
-	
-	/*public void mergeArticle(Article article) {
-		try (Session session = driver.session()){
-			var p = parameters("name", article.name, "year", article.year, "topics", article.topics);
-			session.writeTransaction(tx -> tx.run("MERGE (a:Article {name: $name, year: $year, topics: $topics})", p));
-		}
-	}*/
 
 	public void mergeArticle(Article article){
 		try (Session session = driver.session()){
 			var p = parameters("name", article.name, "year", article.year, "topics", article.topics);
 			session.writeTransaction(tx -> tx.run("MERGE (a:Article {name: $name}) SET a.year = $year, a.topics = $topics", p));
 		}
-	}
-	
-	public void addReference(String article1, String article2) {
-		try(Session session = driver.session()){
-			writeReference(session, article1, article2);
-		}
-	}
-	
-	public void addReferences(String article, ArrayList<String> articles) {
-		try(Session session = driver.session()){
-			for (String ref : articles) {
-				writeReference(session, article, ref);
-			}
-		}
-	}
-	
-	private void writeReference(Session session, String article1, String article2) {
-		var p = parameters("article1", article1, "article2", article2);
-		session.writeTransaction(tx -> tx.run("MATCH (a:Article), (b:Article) WHERE a.name = $article1 AND b.name = $article2 CREATE (a)-[:References]->(b)", p));
 	}
 	
 	public void mergeReference(String article1, String article2) {
@@ -115,30 +83,6 @@ public class Neo4jDatabase implements AutoCloseable {
 			mergeReference(article, ref);
 		}
 	}
-	
-	public Article getArticle(String name) {
-		try(Session session = driver.session()){
-			var p = parameters("name", name);
-			Result result = session.run("MATCH (a:Article) WHERE a.name = $name RETURN properties(a) AS props", p);
-			while(result.hasNext()) {
-				Record record = result.next();
-				return new Article(record.get("props").asMap());
-			}
-		}
-		return null;
-	}
-	
-	public ArrayList<String> getAllArticleNames() {
-		ArrayList<String> articles = new ArrayList<String>();
-		try(Session session = driver.session()){
-			Result result = session.run("MATCH (a:Article) RETURN a.name AS name");
-			while(result.hasNext()) {
-				Record record = result.next();
-				articles.add(record.get("name").asString());
-			}
-		}
-		return articles;
-	}
 
 	public ArrayList<Article> getAllArticles(){
 		ArrayList<Article> articles = new ArrayList<>();
@@ -147,20 +91,6 @@ public class Neo4jDatabase implements AutoCloseable {
 			articles = getArticlesFromResult(result);
 		}
 		return articles;
-	}
-	
-	public ArrayList<Article> getReferences(String article) {
-		/*ArrayList<String> articles = new ArrayList<String>();
-		try(Session session = driver.session()){
-			var p = parameters("article", article);
-			Result result = session.run("MATCH (a:Article) WHERE a.name = $article MATCH (a)-[:References]->(b) return b.name AS name", p);	
-			while(result.hasNext()) {
-				Record record = result.next();
-				articles.add(record.get("name").asString());
-			}
-		}
-		return articles;*/
-		return getReferences(article, 1);
 	}
 
 	public ArrayList<Article> getReferences(String article, int steps){
@@ -206,16 +136,6 @@ public class Neo4jDatabase implements AutoCloseable {
 		try (Session session = driver.session()) {
 			var p = parameters("name", article);
 			Result result = session.run("MATCH (a:Article {name: $name})-[:References]->()<-[:References]-(b:Article) OPTIONAL MATCH (b)<-[:Wrote]-(c:Author) return properties(b) AS props, collect(c.name) AS authors", p);
-			articles = getArticlesFromResult(result);
-		}
-		return articles;
-	}
-	
-	public ArrayList<Article> getReferencers(String article) {
-		ArrayList<Article> articles;
-		try(Session session = driver.session()){
-			var p = parameters("article", article);
-			Result result = session.run("MATCH (a:Article) WHERE a.name = $article MATCH (a)<-[:References]-(b) return properties(b) AS props", p);
 			articles = getArticlesFromResult(result);
 		}
 		return articles;
