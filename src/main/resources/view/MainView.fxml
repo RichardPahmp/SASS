@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
@@ -105,16 +106,25 @@
                            <VBox.margin>
                               <Insets bottom="5.0" />
                            </VBox.margin>
+                           <tooltip>
+                              <Tooltip text="Find articles that share one or more references with the selected article." />
+                           </tooltip>
                         </RadioButton>
                         <RadioButton fx:id="outgoingRadioButton" mnemonicParsing="false" selected="true" text="Outgoing references">
                            <VBox.margin>
                               <Insets bottom="5.0" />
                            </VBox.margin>
+                           <tooltip>
+                              <Tooltip text="Find articles that the selected article refers to." />
+                           </tooltip>
                         </RadioButton>
                         <RadioButton fx:id="incomingRadioButton" mnemonicParsing="false" text="Incoming references">
                            <VBox.margin>
                               <Insets bottom="5.0" />
                            </VBox.margin>
+                           <tooltip>
+                              <Tooltip text="Find articles that refer to the selected article." />
+                           </tooltip>
                         </RadioButton>
                         <Label text="Steps:" />
                         <Spinner fx:id="stepsSpinner" />
