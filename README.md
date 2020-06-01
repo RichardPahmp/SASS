@@ -18,7 +18,7 @@ Maven is required to build the project and is included in the apache-maven-3.6.3
 
 # Using Scientific Article Snowballing System (SASS)
 
-Sass does not distinguish between different roles of a user at the moment.
+SASS does not distinguish between different roles of a user at the moment.
 
 A user can add an article by clicking on the new article window and add references to it.
 A user can add or remove an article.
@@ -29,8 +29,8 @@ A user can add or remove an article.
 
 A user have three option for filtering results,
 
-Incoming references 
-Outgoing references
-Shared references
+* Incoming references 
+* Outgoing references
+* Shared references
 
 Incoming and outgoing references can show connected articles in steps from the chosen article. At the moment five steps only. One article can simulateneously be one or several steps away from the chosen article which means that an article can be seen in several steps
