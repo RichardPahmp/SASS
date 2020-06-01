@@ -1,6 +1,11 @@
-# Neo4jProject
+# Scientific Article Snowballing System (SASS)
 
-## Running
-Database connection can be configured in the properties.txt file.
+## How to run
+The program can be run either by using the provided run.bat or from the command line using Maven:
+```
+mvn compile javafx:run
+```
+### Requirements
+Java 11 or later is required to build and run the project.
 
-The program can be run using run.bat which uses an included release of maven to compile and run.
+Maven is required to build the project and is included in the apache-maven-3.6.3 folder.
