@@ -23,14 +23,11 @@ SASS does not distinguish between different roles of a user at the moment.
 A user can add an article by clicking on the new article window and add references to it.
 A user can add or remove an article.
 
+A user have three options for filtering results:
 
-![](https://drive.google.com/file/d/16L0_AFUY9UUSNBJVjaY0_MP6nW0odIcn/view?usp=sharing)
-
-
-A user have three option for filtering results,
-
-* Incoming references 
-* Outgoing references
 * Shared references
+* Outgoing references
+* Incoming references
+
 
 Incoming and outgoing references can show connected articles in steps from the chosen article. At the moment five steps only. One article can simulateneously be one or several steps away from the chosen article which means that an article can be seen in several steps
