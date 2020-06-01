@@ -199,9 +199,9 @@ public class EditArticleViewController extends Controller{
 		
 		ArrayList<Article> references = database.getReferences(article.name, 1);
 		ArrayList<String> authors = database.getAuthors(article.name);
-		
-		articleList.remove(article);
+
 		articleList.removeAll(references);
+		articleList.remove(article);
 		referenceList.setAll(references);
 
 		authoredList.setAll(authors);

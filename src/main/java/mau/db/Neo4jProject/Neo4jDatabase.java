@@ -87,7 +87,7 @@ public class Neo4jDatabase implements AutoCloseable {
 	public ArrayList<Article> getAllArticles(){
 		ArrayList<Article> articles = new ArrayList<>();
 		try(Session session = driver.session()){
-			Result result = session.run("MATCH (a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN properties(a) AS props, collect(b.name) AS authors");
+			Result result = session.run("MATCH (a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN properties(a) AS props, collect(b.name) AS authors ORDER BY props.name");
 			articles = getArticlesFromResult(result);
 		}
 		return articles;
@@ -97,7 +97,7 @@ public class Neo4jDatabase implements AutoCloseable {
 		ArrayList<Article> references;
 		try(Session session = driver.session()){
 			var p = parameters("article", article);
-			Result result = session.run("MATCH (:Article {name: $article})-[:References*" + steps + "]->(a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN DISTINCT properties(a) AS props, collect(b.name) AS authors", p);
+			Result result = session.run("MATCH (:Article {name: $article})-[:References*" + steps + "]->(a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN DISTINCT properties(a) AS props, collect(b.name) AS authors ORDER BY props.name", p);
 			references = getArticlesFromResult(result);
 		}
 		return references;
@@ -107,7 +107,7 @@ public class Neo4jDatabase implements AutoCloseable {
 		ArrayList<Article> articles;
 		try(Session session = driver.session()){
 			var p = parameters("article", article);
-			Result result = session.run("MATCH (:Article {name: $article})<-[:References*" + steps + "]-(a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN DISTINCT properties(a) AS props, collect(b.name) AS authors", p);
+			Result result = session.run("MATCH (:Article {name: $article})<-[:References*" + steps + "]-(a:Article) OPTIONAL MATCH (a)<-[:Wrote]-(b:Author) RETURN DISTINCT properties(a) AS props, collect(b.name) AS authors ORDER BY props.name", p);
 			articles = getArticlesFromResult(result);
 		}
 		return articles;
@@ -126,7 +126,7 @@ public class Neo4jDatabase implements AutoCloseable {
 	public ArrayList<String> getAllAuthorNames(){
 		ArrayList<String> authors = new ArrayList<String>();
 		try(Session session = driver.session()){
-			Result result = session.run("MATCH (a:Author) RETURN a.name AS name");
+			Result result = session.run("MATCH (a:Author) RETURN a.name AS name ORDER BY name");
 			while(result.hasNext()) {
 				Record record = result.next();
 				authors.add(record.get("name").asString());
@@ -138,7 +138,7 @@ public class Neo4jDatabase implements AutoCloseable {
 	public ArrayList<String> getAuthors(String article){
 		ArrayList<String> authors = new ArrayList<String>();
 		try(Session session = driver.session()){
-			Result result = session.run("MATCH (a:Article) WHERE a.name = $article MATCH (a)<-[:Wrote]-(b) RETURN b.name AS name", parameters("article", article));
+			Result result = session.run("MATCH (a:Article) WHERE a.name = $article MATCH (a)<-[:Wrote]-(b) RETURN b.name AS name ORDER BY name", parameters("article", article));
 			while(result.hasNext()) {
 				Record record = result.next();
 				authors.add(record.get("name").asString());
