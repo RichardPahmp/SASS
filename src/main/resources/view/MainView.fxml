@@ -87,9 +87,9 @@
                   </VBox>
                   <FlowPane hgap="5.0" prefHeight="0.0" prefWidth="0.0" vgap="5.0">
                      <children>
-                        <Button fx:id="newArticleButton" mnemonicParsing="false" onAction="#onNewArticle" text="New Article" />
-                        <Button mnemonicParsing="false" onAction="#onEditArticle" text="Edit Article" />
-                        <Button mnemonicParsing="false" onAction="#onRemoveArticle" text="Remove Article" />
+                        <Button fx:id="newArticleButton" disable="true" mnemonicParsing="false" onAction="#onNewArticle" text="New Article" />
+                        <Button fx:id="editArticleButton" disable="true" mnemonicParsing="false" onAction="#onEditArticle" text="Edit Article" />
+                        <Button fx:id="removeArticleButton" disable="true" mnemonicParsing="false" onAction="#onRemoveArticle" text="Remove Article" />
                      </children>
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

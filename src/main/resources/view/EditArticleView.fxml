@@ -89,8 +89,8 @@
                               <Insets top="5.0" />
                            </VBox.margin>
                            <children>
-                              <Button fx:id="addAuthorButton" mnemonicParsing="false" onAction="#onCreateAuthor" text="Create" />
-                              <Button fx:id="removeAuthorButton" mnemonicParsing="false" onAction="#onDeleteAuthor" text="Delete">
+                              <Button fx:id="createAuthorButton" disable="true" mnemonicParsing="false" onAction="#onCreateAuthor" text="Create" />
+                              <Button fx:id="deleteAuthorButton" disable="true" mnemonicParsing="false" onAction="#onDeleteAuthor" text="Delete">
                                  <HBox.margin>
                                     <Insets left="5.0" />
                                  </HBox.margin>
@@ -101,12 +101,12 @@
                   </VBox>
                   <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#onAddAuthor" text="--&gt;">
+                        <Button fx:id="addAuthorButton" mnemonicParsing="false" onAction="#onAddAuthor" text="--&gt;">
                            <VBox.margin>
                               <Insets bottom="5.0" />
                            </VBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" onAction="#onRemoveAuthor" text="&lt;--" />
+                        <Button fx:id="removeAuthorButton" mnemonicParsing="false" onAction="#onRemoveAuthor" text="&lt;--" />
                      </children>
                   </VBox>
                   <VBox>

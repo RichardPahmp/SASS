@@ -1,15 +1,14 @@
 package mau.db.Neo4jProject;
 
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 public class EditArticleViewController extends Controller{
@@ -34,6 +33,18 @@ public class EditArticleViewController extends Controller{
 	
 	@FXML
 	ListView<String> authoredListView;
+
+	@FXML
+	Button removeAuthorButton;
+
+	@FXML
+	Button addAuthorButton;
+
+	@FXML
+	Button removeReferenceButton;
+
+	@FXML
+	Button addReferenceButton;
 	
 	private ObservableList<Article> articleList = FXCollections.observableArrayList();
 	private ObservableList<Article> referenceList = FXCollections.observableArrayList();
@@ -56,6 +67,19 @@ public class EditArticleViewController extends Controller{
 		articleListView.setItems(articleList);
 		referenceListView.setItems(referenceList);
 		authoredListView.setItems(authoredList);
+
+		authoredListView.getSelectionModel().selectedItemProperty().addListener(this::authoredSelectionChanged);
+		authorListView.getSelectionModel().selectedItemProperty().addListener(this::authorSelectionChanged);
+
+		if(!App.isAdmin()){
+			removeAuthorButton.setDisable(true);
+			addAuthorButton.setDisable(true);
+		}
+
+		if(App.isUser()){
+			authoredList.add(App.getUsername());
+			database.mergeAuthor(App.getUsername());
+		}
 	}
 
 	public void setCallback(Callback callback){
@@ -94,7 +118,6 @@ public class EditArticleViewController extends Controller{
 			database.mergeReferences(name, Article.toNameList(new ArrayList<Article>(referenceList)));
 			
 			database.deleteReferences(name, Article.toNameList(referencesToRemove));
-			
 			
 			database.mergeAuthored(name, new ArrayList<String>(authoredList));
 			
@@ -147,6 +170,7 @@ public class EditArticleViewController extends Controller{
 	private void onRemoveAuthor() {
 		if(authoredListView.getSelectionModel().getSelectedIndex() >= 0) {
 			String author = authoredListView.getSelectionModel().getSelectedItem();
+
 			authoredList.remove(author);
 			authorList.add(author);
 			authoredToRemove.add(author);
@@ -206,5 +230,33 @@ public class EditArticleViewController extends Controller{
 
 		authoredList.setAll(authors);
 		authorList.removeAll(authors);
+
+		nameTextField.setDisable(true);
+
+	}
+
+	private void authoredSelectionChanged(ObservableValue<? extends String> observable, String oldAuthor, String newAuthor) {
+		if(App.isUser()){
+			if(newAuthor.equals(App.getUsername())){
+				if(authoredList.size() == 1) {
+					removeAuthorButton.setDisable(true);
+				} else {
+					removeAuthorButton.setDisable(false);
+				}
+			} else {
+				removeAuthorButton.setDisable(true);
+			}
+		}
+
+	}
+
+	private void authorSelectionChanged(ObservableValue<? extends String> observable, String oldAuthor, String newAuthor) {
+		if(App.isUser() && newAuthor.equals(App.getUsername())){
+			addAuthorButton.setDisable(false);
+		} else if(App.isUser()){
+			addAuthorButton.setDisable(true);
+		} else {
+			addAuthorButton.setDisable(false);
+		}
 	}
 }

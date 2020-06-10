@@ -27,6 +27,12 @@ public class MainViewController extends Controller{
 	Button newArticleButton;
 
 	@FXML
+	Button editArticleButton;
+
+	@FXML
+	Button removeArticleButton;
+
+	@FXML
 	TextField filterNameTextField;
 
 	@FXML
@@ -97,6 +103,15 @@ public class MainViewController extends Controller{
 		
 		updateArticleList();
 		articleListView.getSelectionModel().select(0);
+
+		if(App.isAdmin()){
+			editArticleButton.setDisable(false);
+			removeArticleButton.setDisable(false);
+		}
+
+		if(!App.isAnon()){
+			newArticleButton.setDisable(false);
+		}
 	}
 
 	private boolean articleFilter(Article article){
@@ -238,16 +253,32 @@ public class MainViewController extends Controller{
 	
 	private void articleSelectionChanged(ObservableValue<? extends Article> observable, Article oldArticle, Article newArticle) {
 		if(newArticle != null) {
-			//referenceListView.getSelectionModel().clearSelection();
+			referenceListView.getSelectionModel().clearSelection();
 			updateInfoView(newArticle);
 			
 			updateReferenceList(newArticle);
+
+			if(!App.isAnon() && newArticle.authors.contains(App.getUsername())) {
+				editArticleButton.setDisable(false);
+			} else if(App.isAdmin()){
+				editArticleButton.setDisable(false);
+			} else {
+				editArticleButton.setDisable(true);
+			}
+
+			if(!App.isAnon() && newArticle.authors.size() == 1 && newArticle.authors.contains(App.getUsername())){
+				removeArticleButton.setDisable(false);
+			} else if(App.isAdmin()){
+				removeArticleButton.setDisable(false);
+			} else {
+				removeArticleButton.setDisable(true);
+			}
 		}
 	}
 	
 	private void referenceSelectionChanged(ObservableValue<? extends Article> observable, Article oldArticle, Article newArticle) {
 		if(newArticle != null) {
-			//articleListView.getSelectionModel().clearSelection();
+			articleListView.getSelectionModel().clearSelection();
 			updateInfoView(newArticle);
 		}
 	}
