@@ -45,6 +45,12 @@ public class EditArticleViewController extends Controller{
 
 	@FXML
 	Button addReferenceButton;
+
+	@FXML
+	Button createAuthorButton;
+
+	@FXML
+	Button deleteAuthorButton;
 	
 	private ObservableList<Article> articleList = FXCollections.observableArrayList();
 	private ObservableList<Article> referenceList = FXCollections.observableArrayList();
@@ -70,6 +76,11 @@ public class EditArticleViewController extends Controller{
 
 		authoredListView.getSelectionModel().selectedItemProperty().addListener(this::authoredSelectionChanged);
 		authorListView.getSelectionModel().selectedItemProperty().addListener(this::authorSelectionChanged);
+
+		if(App.isAdmin()){
+			deleteAuthorButton.setDisable(false);
+			createAuthorButton.setDisable(false);
+		}
 
 		if(!App.isAdmin()){
 			removeAuthorButton.setDisable(true);

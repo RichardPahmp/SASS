@@ -187,7 +187,6 @@ public class MainViewController extends Controller{
 			editArticleViewController.initialize(app, database);
 			editArticleViewController.setCallback(() -> {
 				updateArticleList();
-				//TODO : update info view after article edit
 			});
 			
 			Stage stage = new Stage();
