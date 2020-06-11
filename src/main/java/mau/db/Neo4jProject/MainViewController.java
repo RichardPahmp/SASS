@@ -252,7 +252,7 @@ public class MainViewController extends Controller{
 	
 	private void articleSelectionChanged(ObservableValue<? extends Article> observable, Article oldArticle, Article newArticle) {
 		if(newArticle != null) {
-			referenceListView.getSelectionModel().clearSelection();
+			//referenceListView.getSelectionModel().clearSelection();
 			updateInfoView(newArticle);
 			
 			updateReferenceList(newArticle);
@@ -277,7 +277,7 @@ public class MainViewController extends Controller{
 	
 	private void referenceSelectionChanged(ObservableValue<? extends Article> observable, Article oldArticle, Article newArticle) {
 		if(newArticle != null) {
-			articleListView.getSelectionModel().clearSelection();
+			//articleListView.getSelectionModel().clearSelection();
 			updateInfoView(newArticle);
 		}
 	}
