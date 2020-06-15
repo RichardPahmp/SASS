@@ -12,6 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -84,14 +85,16 @@ public class MainViewController extends Controller{
 		articleListView.setItems(filteredArticleList);
 		articleListView.getSelectionModel().clearSelection();
 		articleListView.getSelectionModel().selectedItemProperty().addListener(this::articleSelectionChanged);
+		articleListView.setOnMouseClicked(this::onArticleClick);
 		
 		referenceListView.setItems(referenceList);
 		referenceListView.getSelectionModel().selectedItemProperty().addListener(this::referenceSelectionChanged);
-		referenceListView.setOnMouseClicked(e -> {
+		referenceListView.setOnMouseClicked(this::onReferenceClick);
+		/*referenceListView.setOnMouseClicked(e -> {
 			if(e.getButton().equals(MouseButton.PRIMARY) && e.getClickCount() == 2){
 				onReferenceDoubleClick();
 			}
-		});
+		});*/
 
 		neighbourRadioButton.setToggleGroup(toggleGroup);
 		outgoingRadioButton.setToggleGroup(toggleGroup);
@@ -253,7 +256,7 @@ public class MainViewController extends Controller{
 	private void articleSelectionChanged(ObservableValue<? extends Article> observable, Article oldArticle, Article newArticle) {
 		if(newArticle != null) {
 			//referenceListView.getSelectionModel().clearSelection();
-			updateInfoView(newArticle);
+			//updateInfoView(newArticle);
 			
 			updateReferenceList(newArticle);
 
@@ -278,7 +281,21 @@ public class MainViewController extends Controller{
 	private void referenceSelectionChanged(ObservableValue<? extends Article> observable, Article oldArticle, Article newArticle) {
 		if(newArticle != null) {
 			//articleListView.getSelectionModel().clearSelection();
-			updateInfoView(newArticle);
+			//updateInfoView(newArticle);
+		}
+	}
+
+	private void onArticleClick(MouseEvent event){
+		Article article = articleListView.getSelectionModel().getSelectedItem();
+		if(article != null){
+			updateInfoView(article);
+		}
+	}
+
+	private void onReferenceClick(MouseEvent event){
+		Article article = referenceListView.getSelectionModel().getSelectedItem();
+		if(article != null){
+			updateInfoView(article);
 		}
 	}
 
